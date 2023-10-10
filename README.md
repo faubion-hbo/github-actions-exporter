@@ -2,6 +2,9 @@
 
 ___
 
+TODO add docs for local testing, e.g. need of `GITHUB_TOKEN`, `GITHUB_REPOS` (comma-separated) to be exported
+___
+
 # github-actions-exporter
 github-actions-exporter for prometheus
 
