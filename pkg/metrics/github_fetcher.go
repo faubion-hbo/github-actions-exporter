@@ -110,7 +110,6 @@ func periodicGithubFetcher() {
 			for _, orga := range config.Github.Organizations.Value() {
 				c, exist := repos_per_org[orga]
 				currentCount := countAllReposForOrg(orga)
-				log.Printf("getAllReposForOrg %d", currentCount)
 				if !exist || c != currentCount {
 					repos_to_fetch = append(repos_to_fetch, getAllReposForOrg(orga)...)
 				} else {
