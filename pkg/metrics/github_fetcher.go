@@ -21,7 +21,7 @@ func countAllReposForOrg(orga string) int {
 	for {
 		organization, _, err := client.Organizations.Get(context.Background(), orga)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("Search ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
+			log.Printf("Organizations ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
 			continue
 		} else if err != nil {
