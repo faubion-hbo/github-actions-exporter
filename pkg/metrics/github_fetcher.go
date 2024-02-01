@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 	"log"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -21,11 +22,20 @@ func countAllReposForOrg(orga string) int {
 	for {
 		organization, _, err := client.Organizations.Get(context.Background(), orga)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("Organizations ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
+			log.Printf("Organizations.Get ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
 			continue
+		} else if sl_err, ok := err.(*github.AbuseRateLimitError); ok {
+			retryAfter := sl_err.GetRetryAfter()
+			if retryAfter <= 0 {
+				// sleep for random amount of time between 200 ms and 2 s
+				retryAfter = time.Duration(rand.Intn(1800)+200) * time.Millisecond
+			}
+			log.Printf("Organizations.Get secondary ratelimited. Pausing for %d ms", retryAfter.Milliseconds())
+			time.Sleep(retryAfter)
+			continue
 		} else if err != nil {
-			log.Printf("Get error for %s: %s", orga, err.Error())
+			log.Printf("Organizations.Get error for %s: %s", orga, err.Error())
 			break
 		}
 		return *organization.PublicRepos + *organization.TotalPrivateRepos + *organization.OwnedPrivateRepos
@@ -47,6 +57,15 @@ func getAllReposForOrg(orga string) []string {
 		if rl_err, ok := err.(*github.RateLimitError); ok {
 			log.Printf("ListByOrg ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			continue
+		} else if sl_err, ok := err.(*github.AbuseRateLimitError); ok {
+			retryAfter := sl_err.GetRetryAfter()
+			if retryAfter <= 0 {
+				// sleep for random amount of time between 200 ms and 2 s
+				retryAfter = time.Duration(rand.Intn(1800)+200) * time.Millisecond
+			}
+			log.Printf("ListByOrg secondary ratelimited. Pausing for %d ms", retryAfter.Milliseconds())
+			time.Sleep(retryAfter)
 			continue
 		} else if err != nil {
 			log.Printf("ListByOrg error for %s: %s", orga, err.Error())
@@ -80,6 +99,15 @@ func getAllWorkflowsForRepo(owner string, repo string) map[int64]github.Workflow
 		if rl_err, ok := err.(*github.RateLimitError); ok {
 			log.Printf("ListWorkflows ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			continue
+		} else if sl_err, ok := err.(*github.AbuseRateLimitError); ok {
+			retryAfter := sl_err.GetRetryAfter()
+			if retryAfter <= 0 {
+				// sleep for random amount of time between 200 ms and 2 s
+				retryAfter = time.Duration(rand.Intn(1800)+200) * time.Millisecond
+			}
+			log.Printf("ListWorkflows secondary ratelimited. Pausing for %d ms", retryAfter.Milliseconds())
+			time.Sleep(retryAfter)
 			continue
 		} else if err != nil {
 			log.Printf("ListWorkflows error for %s: %s", repo, err.Error())
