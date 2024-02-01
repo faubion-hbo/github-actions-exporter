@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -133,6 +134,15 @@ func getRecentWorkflowRuns(owner string, repo string) []*github.WorkflowRun {
 			log.Printf("ListRepositoryWorkflowRuns ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
 			continue
+		} else if sl_err, ok := err.(*github.AbuseRateLimitError); ok {
+			retryAfter := sl_err.GetRetryAfter()
+			if retryAfter <= 0 {
+				// sleep for random amount of time between 200 ms and 2 s
+				retryAfter = time.Duration(rand.Intn(1800)+200) * time.Millisecond
+			}
+			log.Printf("ListRepositoryWorkflowRuns secondary ratelimited. Pausing for %d ms", retryAfter.Milliseconds())
+			time.Sleep(retryAfter)
+			continue
 		} else if err != nil {
 			log.Printf("ListRepositoryWorkflowRuns error for repo %s/%s: %s", owner, repo, err.Error())
 			return runs
@@ -154,6 +164,15 @@ func getRunUsage(owner string, repo string, runId int64) *github.WorkflowRunUsag
 		if rl_err, ok := err.(*github.RateLimitError); ok {
 			log.Printf("GetWorkflowRunUsageByID ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			continue
+		} else if sl_err, ok := err.(*github.AbuseRateLimitError); ok {
+			retryAfter := sl_err.GetRetryAfter()
+			if retryAfter <= 0 {
+				// sleep for random amount of time between 200 ms and 2 s
+				retryAfter = time.Duration(rand.Intn(1800)+200) * time.Millisecond
+			}
+			log.Printf("GetWorkflowRunUsageByID secondary ratelimited. Pausing for %d ms", retryAfter.Milliseconds())
+			time.Sleep(retryAfter)
 			continue
 		} else if err != nil {
 			log.Printf("GetWorkflowRunUsageByID error for repo %s/%s and runId %d: %s", owner, repo, runId, err.Error())
