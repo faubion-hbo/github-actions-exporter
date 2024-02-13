@@ -15,8 +15,8 @@ import (
 )
 
 type orgRepos struct {
-	Active, Inactive []string
-	Count            int
+	Active, Inactive, Forks []string
+	Count                   int
 }
 
 var (
@@ -40,7 +40,10 @@ func countAllReposForOrg(orga string) int {
 			log.Printf("Get error for %s: %s", orga, err.Error())
 			break
 		}
-		return *organization.PublicRepos + *organization.TotalPrivateRepos + *organization.OwnedPrivateRepos
+		log.Printf("*organization.PublicRepos: %d", *organization.PublicRepos)
+		log.Printf("*organization.TotalPrivateRepos: %d", *organization.TotalPrivateRepos)
+		log.Printf("*organization.OwnedPrivateRepos: %d", *organization.OwnedPrivateRepos)
+		return *organization.PublicRepos + *organization.OwnedPrivateRepos
 	}
 	return -1
 }
@@ -65,6 +68,12 @@ func getAllReposForOrg(orga string) orgRepos {
 			break
 		}
 		for _, repo := range repos_page {
+			if *repo.Fork {
+				log.Printf("Partitioning out fork repo %s", *repo.FullName)
+				forks = append(forks, *repo.FullName)
+				continue
+			}
+
 			if *repo.Disabled || *repo.Archived {
 				log.Printf("Skipping Archived or Disabled repo %s", *repo.FullName)
 				inactive_repos = append(inactive_repos, *repo.FullName)
@@ -78,9 +87,13 @@ func getAllReposForOrg(orga string) orgRepos {
 		opt.ListOptions.Page = resp.NextPage
 	}
 
+	log.Printf(".Active size: %d", len(active_repos))
+	log.Printf(".Inactive size: %d", len(inactive_repos))
+	log.Printf(".Forks: %v", forks)
 	return orgRepos{
 		Active:   active_repos,
 		Inactive: inactive_repos,
+		Forks:    forks,
 		Count:    len(active_repos) + len(inactive_repos),
 	}
 }
