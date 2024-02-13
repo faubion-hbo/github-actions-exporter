@@ -4,12 +4,12 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
+	"github.com/faubion-hbo/github-actions-exporter/pkg/metrics"
+
 	"github.com/fasthttp/router"
 	"github.com/urfave/cli/v2"
 	"github.com/valyala/fasthttp"
-
-	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
-	"github.com/faubion-hbo/github-actions-exporter/pkg/metrics"
 )
 
 // RunServer - run http server for expose metrics

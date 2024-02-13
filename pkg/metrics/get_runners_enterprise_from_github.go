@@ -31,8 +31,7 @@ func getAllEnterpriseRunners() []*github.Runner {
 	for {
 		resp, rr, err := client.Enterprise.ListRunners(context.Background(), config.EnterpriseName, nil)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("ListRunners ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(config.EnterpriseName, "Enterprise.ListRunners", *rl_err)
 			continue
 		} else if err != nil {
 			if rr.StatusCode == http.StatusForbidden {

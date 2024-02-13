@@ -31,8 +31,7 @@ func getAllOrgRunners(orga string) []*github.Runner {
 	for {
 		resp, rr, err := client.Actions.ListOrganizationRunners(context.Background(), orga, opt)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("ListOrganizationRunners ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(orga, "Actions.ListOrganizationRunners", *rl_err)
 			continue
 		} else if err != nil {
 			if rr.StatusCode == http.StatusForbidden {

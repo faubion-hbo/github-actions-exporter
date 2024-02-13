@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -32,8 +33,7 @@ func getAllRepoRunners(owner string, repo string) []*github.Runner {
 	for {
 		resp, rr, err := client.Actions.ListRunners(context.Background(), owner, repo, opt)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("ListRunners ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(fmt.Sprintf("%s/%s", owner, repo), "Actions.ListRunners", *rl_err)
 			continue
 		} else if err != nil {
 			if rr.StatusCode == http.StatusForbidden {
