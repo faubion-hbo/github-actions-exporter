@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v45/github"
-
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
+
+	"github.com/google/go-github/v45/github"
 )
 
 type orgRepos struct {
