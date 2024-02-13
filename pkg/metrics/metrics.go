@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
 
@@ -129,4 +130,13 @@ func getEnterpriseApiUrl(baseURL string) (string, error) {
 
 	// Trim trailing slash, otherwise there's double slash added to token endpoint
 	return fmt.Sprintf("%s://%s%s", baseEndpoint.Scheme, baseEndpoint.Host, strings.TrimSuffix(baseEndpoint.Path, "/")), nil
+}
+
+func handleTokenExhausted(prefix, methodName string, err github.RateLimitError) {
+	wait := err.Rate.Reset.Time
+	if prefix != "" {
+		prefix = fmt.Sprintf("(%s) ", prefix)
+	}
+	log.Printf("%s%s ratelimited. Pausing until %s", prefix, methodName, wait.String())
+	time.Sleep(time.Until(wait.Add(time.Duration(2) * time.Second)))
 }

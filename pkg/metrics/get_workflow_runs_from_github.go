@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -132,8 +133,7 @@ func getRecentWorkflowRuns(owner string, repo string) []*github.WorkflowRun {
 	for {
 		workflow_runs, response, err := client.Actions.ListRepositoryWorkflowRuns(context.Background(), owner, repo, opt)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("ListRepositoryWorkflowRuns ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(fmt.Sprintf("%s/%s", owner, repo), "Actions.ListRepositoryWorkflowRuns", *rl_err)
 			continue
 		} else if err != nil {
 			if response.StatusCode == http.StatusForbidden {
@@ -162,8 +162,7 @@ func getRunUsage(owner string, repo string, runId int64) *github.WorkflowRunUsag
 	for {
 		resp, _, err := client.Actions.GetWorkflowRunUsageByID(context.Background(), owner, repo, runId)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("GetWorkflowRunUsageByID ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(fmt.Sprintf("%s/%s, %d", owner, repo, runId), "Actions.GetWorkflowRunUsageByID", *rl_err)
 			continue
 		} else if err != nil {
 			log.Printf("GetWorkflowRunUsageByID error for repo %s/%s and runId %d: %s", owner, repo, runId, err.Error())

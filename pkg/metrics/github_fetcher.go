@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -33,8 +34,7 @@ func countAllReposForOrg(orga string) int {
 	for {
 		organization, _, err := client.Organizations.Get(context.Background(), orga)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("Organizations ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(orga, "Organizations.Get", *rl_err)
 			continue
 		} else if err != nil {
 			log.Printf("Get error for %s: %s", orga, err.Error())
@@ -49,7 +49,7 @@ func countAllReposForOrg(orga string) int {
 }
 
 func getAllReposForOrg(orga string) orgRepos {
-	var active_repos, inactive_repos []string
+	var active_repos, inactive_repos, forks []string
 
 	opt := &github.RepositoryListByOrgOptions{
 		ListOptions: github.ListOptions{
@@ -60,8 +60,7 @@ func getAllReposForOrg(orga string) orgRepos {
 	for {
 		repos_page, resp, err := client.Repositories.ListByOrg(context.Background(), orga, opt)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("ListByOrg ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(orga, "Repositories.ListByOrg", *rl_err)
 			continue
 		} else if err != nil {
 			log.Printf("ListByOrg error for %s: %s", orga, err.Error())
@@ -109,8 +108,7 @@ func getAllWorkflowsForRepo(owner string, repo string) map[int64]github.Workflow
 	for {
 		workflows_page, resp, err := client.Actions.ListWorkflows(context.Background(), owner, repo, opt)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
-			log.Printf("ListWorkflows ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+			handleTokenExhausted(fmt.Sprintf("%s/%s", owner, repo), "Actions.ListWorkflows", *rl_err)
 			continue
 		} else if err != nil {
 			if resp.StatusCode == http.StatusForbidden {

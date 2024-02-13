@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v45/github"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -35,8 +36,7 @@ func getBillableFromGithub() {
 				for {
 					usage, resp, err := client.Actions.GetWorkflowUsageByID(context.Background(), r[0], r[1], k)
 					if rl_err, ok := err.(*github.RateLimitError); ok {
-						log.Printf("GetWorkflowUsageByID ratelimited. Pausing until %s", rl_err.Rate.Reset.Time.String())
-						time.Sleep(time.Until(rl_err.Rate.Reset.Time))
+						handleTokenExhausted(fmt.Sprintf("%s, %d", repo, k), "Actions.GetWorkflowUsageByID", *rl_err)
 						continue
 					} else if err != nil {
 						if resp.StatusCode == http.StatusForbidden {
