@@ -13,7 +13,7 @@ import (
 
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v59/github"
 )
 
 // getFieldValue return value from run element which corresponds to field

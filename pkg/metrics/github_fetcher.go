@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v45/github"
-
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
+
+	"github.com/google/go-github/v59/github"
 )
 
 type orgRepos struct {
@@ -29,7 +29,7 @@ const (
 	randomDelaySeconds int64 = 5
 )
 
-func countAllReposForOrg(orga string) int {
+func countAllReposForOrg(orga string) int64 {
 	for {
 		organization, _, err := client.Organizations.Get(context.Background(), orga)
 		if rl_err, ok := err.(*github.RateLimitError); ok {
@@ -43,7 +43,7 @@ func countAllReposForOrg(orga string) int {
 		log.Printf("*organization.PublicRepos: %d", *organization.PublicRepos)
 		log.Printf("*organization.TotalPrivateRepos: %d", *organization.TotalPrivateRepos)
 		log.Printf("*organization.OwnedPrivateRepos: %d", *organization.OwnedPrivateRepos)
-		return *organization.PublicRepos + *organization.OwnedPrivateRepos
+		return int64(*organization.PublicRepos) + *organization.OwnedPrivateRepos
 	}
 	return -1
 }
@@ -153,7 +153,7 @@ func periodicGithubFetcher() {
 					r = getAllReposForOrg(orga)
 				} else {
 					currentCount := countAllReposForOrg(orga)
-					if prevRepos.Count != currentCount {
+					if int64(prevRepos.Count) != currentCount {
 						log.Printf("countAllReposForOrg of org \"%s\" shows count went from %d to %d, so calling getAllReposForOrg", orga, prevRepos.Count, currentCount)
 						r = getAllReposForOrg(orga)
 					} else {

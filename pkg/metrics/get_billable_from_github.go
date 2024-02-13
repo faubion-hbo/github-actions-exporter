@@ -11,7 +11,7 @@ import (
 
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v59/github"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -50,9 +50,9 @@ func getBillableFromGithub() {
 						log.Printf("GetWorkflowUsageByID error for %s: %s", repo, err)
 						break
 					}
-					workflowBillGauge.WithLabelValues(repo, strconv.FormatInt(*v.ID, 10), *v.NodeID, *v.Name, *v.State, "MACOS").Set(float64(usage.GetBillable().MacOS.GetTotalMS()) / 1000)
-					workflowBillGauge.WithLabelValues(repo, strconv.FormatInt(*v.ID, 10), *v.NodeID, *v.Name, *v.State, "WINDOWS").Set(float64(usage.GetBillable().Windows.GetTotalMS()) / 1000)
-					workflowBillGauge.WithLabelValues(repo, strconv.FormatInt(*v.ID, 10), *v.NodeID, *v.Name, *v.State, "UBUNTU").Set(float64(usage.GetBillable().Ubuntu.GetTotalMS()) / 1000)
+					workflowBillGauge.WithLabelValues(repo, strconv.FormatInt(*v.ID, 10), *v.NodeID, *v.Name, *v.State, "MACOS").Set(float64((*usage.GetBillable())["MACOS"].GetTotalMS()) / 1000)
+					workflowBillGauge.WithLabelValues(repo, strconv.FormatInt(*v.ID, 10), *v.NodeID, *v.Name, *v.State, "WINDOWS").Set(float64((*usage.GetBillable())["WINDOWS"].GetTotalMS()) / 1000)
+					workflowBillGauge.WithLabelValues(repo, strconv.FormatInt(*v.ID, 10), *v.NodeID, *v.Name, *v.State, "UBUNTU").Set(float64((*usage.GetBillable())["UBUNTU"].GetTotalMS()) / 1000)
 					break
 				}
 

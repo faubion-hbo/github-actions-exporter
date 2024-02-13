@@ -32,6 +32,7 @@ fmt:
 .PHONY: get
 get:
 	go get ./...
+# update a dependency w/: `go get -u <package name>`
 
 .PHONY: deps
 deps: get
