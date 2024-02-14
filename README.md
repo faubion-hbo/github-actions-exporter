@@ -7,7 +7,7 @@ In the coming weeks, changes will be made on various points (code and container 
 If there are feature requests, you can make them in the issues. For a better understanding of the requested features, having a detailed description or example will be greatly appreciated.
 
 # github-actions-exporter
-github-actions-exporter for Prometheus
+github-actions-exporter for prometheus
 
 ![Release pipeline](https://github.com/Labbs/github-actions-exporter/actions/workflows/release.yml/badge.svg)
 
