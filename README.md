@@ -1,13 +1,15 @@
+> [!WARNING]  
+> Below information has not been validated by me
+
 ## Change of organization
 The project was migrated to another organization because it was no longer maintained.
 In the coming weeks, changes will be made on various points (code and container image) and also an update of all the libraries.
 If there are feature requests, you can make them in the issues. For a better understanding of the requested features, having a detailed description or example will be greatly appreciated.
 
 # github-actions-exporter
-github-actions-exporter for prometheus
+github-actions-exporter for Prometheus
 
 ![Release pipeline](https://github.com/Labbs/github-actions-exporter/actions/workflows/release.yml/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Spendesk/github-actions-exporter)](https://goreportcard.com/report/github.com/Spendesk/github-actions-exporter)
 
 Container image : https://github.com/Labbs/github-actions-exporter/pkgs/container/github-actions-exporter
 
