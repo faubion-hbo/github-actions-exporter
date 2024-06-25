@@ -136,7 +136,7 @@ func getRecentWorkflowRuns(owner string, repo string) []*github.WorkflowRun {
 			time.Sleep(time.Until(rl_err.Rate.Reset.Time))
 			continue
 		} else if err != nil {
-			if response.StatusCode == http.StatusForbidden {
+			if response != nil && response.StatusCode == http.StatusForbidden {
 				if retryAfterSeconds, e := strconv.ParseInt(response.Header.Get("Retry-After"), 10, 32); e == nil {
 					delaySeconds := retryAfterSeconds + (60 * rand.Int63n(randomDelaySeconds))
 					log.Printf("ListRepositoryWorkflowRuns Retry-After %d seconds received, sleeping for %d", retryAfterSeconds, delaySeconds)
@@ -144,7 +144,7 @@ func getRecentWorkflowRuns(owner string, repo string) []*github.WorkflowRun {
 					continue
 				}
 			}
-			log.Printf("ListRepositoryWorkflowRuns error for repo %s/%s: %s [%d]", owner, repo, err, response.StatusCode)
+			log.Printf("ListRepositoryWorkflowRuns error for repo %s/%s: %s", owner, repo, err)
 			return runs
 		}
 
