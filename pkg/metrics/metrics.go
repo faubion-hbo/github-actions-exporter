@@ -47,6 +47,7 @@ func InitMetrics() {
 	prometheus.MustRegister(workflowRunDurationGauge)
 	prometheus.MustRegister(workflowBillGauge)
 	prometheus.MustRegister(runnersEnterpriseGauge)
+	prometheus.MustRegister(remainingLimitsGauge)
 
 	client, err = NewClient()
 	if err != nil {
@@ -66,6 +67,7 @@ func InitMetrics() {
 	go getRunnersOrganizationFromGithub()
 	go getWorkflowRunsFromGithub()
 	go getRunnersEnterpriseFromGithub()
+	go getRemainingLimitsFromGithub()
 }
 
 // NewClient creates a Github Client
