@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/faubion-hbo/github-actions-exporter/pkg/config"
@@ -67,7 +68,7 @@ func InitMetrics() {
 	go getRunnersOrganizationFromGithub()
 	go getWorkflowRunsFromGithub()
 	go getRunnersEnterpriseFromGithub()
-	go getRemainingLimitsFromGithub()
+	go getRemainingLimitsFromGithub(strconv.FormatInt(config.Github.AppID, 10))
 }
 
 // NewClient creates a Github Client
