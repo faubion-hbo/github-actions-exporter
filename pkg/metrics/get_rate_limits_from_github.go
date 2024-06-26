@@ -2,8 +2,6 @@ package metrics
 
 import (
 	"context"
-	"crypto/sha256"
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -20,7 +18,7 @@ var (
 			Name: "github_remaining_limits",
 			Help: "remaining limits",
 		},
-		[]string{"app_id", "type"},
+		[]string{"type"},
 	)
 )
 
@@ -50,19 +48,14 @@ func getRateLimits() (*github.RateLimits, int) {
 }
 
 // getRemainingLimitsFromGithub - return information about the remaining limits for this GitHub client's credentials
-func getRemainingLimitsFromGithub(appId string) {
-	appIdBytes := []byte(appId)
-	hashedAppIdBytes := sha256.New()
-	hashedAppIdBytes.Write(appIdBytes)
-	hashedAppId := fmt.Sprintf("%x", hashedAppIdBytes.Sum(nil))
-
+func getRemainingLimitsFromGithub() {
 	for {
 		rateLimits, secondsBetween := getRateLimits()
 
 		if rateLimits != nil {
-			remainingLimitsGauge.WithLabelValues(hashedAppId, "core").Set(float64(rateLimits.GetCore().Remaining))
-			remainingLimitsGauge.WithLabelValues(hashedAppId, "search").Set(float64(rateLimits.GetSearch().Remaining))
-			remainingLimitsGauge.WithLabelValues(hashedAppId, "graphql").Set(float64(rateLimits.GetGraphQL().Remaining))
+			remainingLimitsGauge.WithLabelValues("core").Set(float64(rateLimits.GetCore().Remaining))
+			remainingLimitsGauge.WithLabelValues("search").Set(float64(rateLimits.GetSearch().Remaining))
+			remainingLimitsGauge.WithLabelValues("graphql").Set(float64(rateLimits.GetGraphQL().Remaining))
 		}
 
 		time.Sleep(time.Duration(secondsBetween) * time.Second)
