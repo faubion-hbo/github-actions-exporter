@@ -15,8 +15,8 @@ import (
 var (
 	remainingLimitsGauge = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "github_remaining_limits",
-			Help: "remaining limits",
+			Name: "github_remaining_limit",
+			Help: "number of requests remaining",
 		},
 		[]string{"type"},
 	)
