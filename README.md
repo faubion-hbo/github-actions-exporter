@@ -3,9 +3,21 @@ github-actions-exporter for `prometheus`
 
 ## Running locally
 
-First, ensure you have `grafana` installed and running.
+You can start the exporter by first building it with:
 
-Create some file, e.g. `/tmp/prometheus.yml`, copy the default `prometheus` config, then include:
+```sh
+make build
+```
+
+Then start it up with (in the case of wanting to use a GitHub App):
+
+```sh
+./bin/app --gai <GitHub App ID> --gii <GitHub App Installation ID> --gpk <path to .pem file> --github_repos <test>/<repo>
+```
+
+Next, ensure you have `grafana` installed and running.
+
+Then, create some file, e.g. `/tmp/prometheus.yml`, copy the default `prometheus` config, then include:
 
 ```yaml
 scrape_configs:
@@ -19,7 +31,7 @@ scrape_configs:
     #- host.containers.internal:9999
 ```
 
-Then start up `prometheus` with your container tool of choice, e.g. `docker`:
+Finally, you can then run `prometheus` with your favorite container tool, e.g. `docker`:
 
 ```sh
 docker run \
@@ -27,7 +39,7 @@ docker run \
   -p 9090:9090 prom/prometheus
 ```
 
-In `grafana`, added the local `prometheus` as a data source, and you're good to go!
+From within `grafana`, added the local `prometheus` as a data source, and you're good to start querying data!
 
 ___
 
