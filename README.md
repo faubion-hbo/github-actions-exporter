@@ -1,15 +1,40 @@
-> [!WARNING]  
-> Below information has not been validated by me
+# github-actions-exporter
+github-actions-exporter for `prometheus`
+
+## Running locally
+
+First, ensure you have `grafana` installed and running.
+
+Create some file, e.g. `/tmp/prometheus.yml`, copy the default `prometheus` config, then include:
+
+```yaml
+scrape_configs:
+...
+- job_name: github-actions-exporter
+  scrape_interval: 5s
+  static_configs:
+  - targets:
+    - host.docker.internal:9999
+    # if using `podman`, use:
+    #- host.containers.internal:9999
+```
+
+Then start up `prometheus` with your container tool of choice, e.g. `docker`:
+
+```sh
+docker run \
+  -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
+  -p 9090:9090 prom/prometheus
+```
+
+In `grafana`, added the local `prometheus` as a data source, and you're good to go!
 
 ___
 
-## Change of organization
-The project was migrated to another organization because it was no longer maintained.
-In the coming weeks, changes will be made on various points (code and container image) and also an update of all the libraries.
-If there are feature requests, you can make them in the issues. For a better understanding of the requested features, having a detailed description or example will be greatly appreciated.
+> [!WARNING]
+> Below information comes from fork source and has yet to be validated by me
 
-# github-actions-exporter
-github-actions-exporter for prometheus
+___
 
 ![Release pipeline](https://github.com/Labbs/github-actions-exporter/actions/workflows/release.yml/badge.svg)
 
